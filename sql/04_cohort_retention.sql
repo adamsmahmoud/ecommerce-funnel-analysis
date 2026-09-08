@@ -10,7 +10,6 @@ cohorts AS (
 activity AS (
   SELECT DISTINCT visitorid, DATE_TRUNC(DATE(TIMESTAMP_MILLIS(timestamp)), WEEK) AS activity_week
   FROM `retail_rockets.events`
-  WHERE event = 'transaction'
 ),
 max_week AS (
   SELECT MAX(DATE_TRUNC(DATE(TIMESTAMP_MILLIS(timestamp)), WEEK)) AS max_week FROM `retail_rockets.events`
