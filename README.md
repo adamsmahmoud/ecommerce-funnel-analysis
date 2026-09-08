@@ -36,6 +36,18 @@ So after running the numbers, I found that first time visitors converted 0.53% o
 
 I ran a two proportion z test on that gap in statsmodels and put a 95% confidence interval on the difference itself, which came out to (2.87, 3.07). The interval is nowhere close to zero so this is not something I can write off as luck.
 
+## Step 5: Windowed Re-run and Sample Size Check
+
+There is a problem with the Step 4 comparison. Any event after the first day counts toward the returning label, even events after someone already bought something. So a visitor who buys and then comes back to check their order ends up counting as returning after the fact, and that inflates the gap.
+
+To fix that, I only look at the first 7 days after a visitor's first appearance to decide whether they count as returning or first time. Returning means active on 2 or more distinct days in that window, and anyone who already bought during that same window gets dropped from the comparison, since I am trying to measure what happens after the label is set, not before. Conversion only counts from day 8 onward. I also drop visitors whose 7 day window runs past the end of the data since I cannot fully observe them. Query is `sql/05_windowed_segmentation.sql`.
+
+That leaves 1,346,912 visitors, 76,094 returning and 1,270,818 first time. Returning visitors converted 0.47% of the time after day 7 (360 out of 76,094), while first time visitors converted 0.06% of the time (794 out of 1,270,818). That is a gap of 0.41 percentage points, so returning visitors convert about 7.6 times as often. I ran the same two proportion z test as before, and the 95% confidence interval on the gap is (0.36%, 0.46%), still nowhere close to zero.
+
+Once that gets fixed, the gap shrinks a lot, from 2.97 points down to 0.41. That tells me a good chunk of the Step 4 gap was really just people buying and then coming back, not coming back and then buying.
+
+I also checked whether this sample was even big enough to catch a smaller gap, using the same 95% confidence idea as above and asking that a real gap get caught 8 times out of 10. The smallest gap this sample could reliably catch that way comes out to about 0.03 percentage points. The actual gap is 0.41 points, way bigger than that, so the result is not one that only holds up because the bar was set low.
+
 ## Recommendation
 
 The gap is real and it is huge, but it does not mean the second visit is what causes the sale. People who come back are already more interested in buying than people who bounced once and never returned, so the group is self selected and the causation could easily run the other way. What I would actually take from this is that a return visit is a strong signal of intent, and I would trust it as a signal way before I would trust it as a lever.
@@ -44,4 +56,7 @@ The gap is real and it is huge, but it does not mean the second visit is what ca
 
 - `sql/01_sessionize.sql`
 - `sql/02_segment_counts.sql`
+- `sql/03_funnel_summary.sql`
+- `sql/04_cohort_retention.sql`
+- `sql/05_windowed_segmentation.sql`
 - `notebooks/01_significance_test.ipynb`
