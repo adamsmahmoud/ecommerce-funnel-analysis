@@ -1,0 +1,16 @@
+# Private learning guide — never goes to GitHub
+private/
+PROJECT PLAN.md
+
+# Raw dataset — 94MB, too large for a portfolio repo and easy to re-download
+events.csv
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+venv/
+.venv/
+
+# OS
+.DS_Store
