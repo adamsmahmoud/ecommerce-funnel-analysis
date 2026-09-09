@@ -48,6 +48,18 @@ Once that gets fixed, the gap shrinks a lot, from 2.97 points down to 0.41. That
 
 I also checked whether this sample was even big enough to catch a smaller gap, using the same 95% confidence idea as above and asking that a real gap get caught 8 times out of 10. The smallest gap this sample could reliably catch that way comes out to about 0.03 percentage points. The actual gap is 0.41 points, way bigger than that, so the result is not one that only holds up because the bar was set low.
 
+## Step 6: Funnel, Session by Session
+
+The funnel query originally counted visitors, not sessions, so the 30 minute session cutoff from Step 2 never actually showed up in the numbers. I fixed that by rerunning the funnel scoped to session_id instead of just visitorid, so a visitor who leaves and comes back hours later gets counted as a separate pass through the funnel like it should.
+
+Session counts came out higher at every stage than visitor counts, which makes sense since one visitor can go through the funnel more than once. Views went from 1,404,179 visitors to 1,755,781 sessions, add to cart went from 32,272 to 35,830, and transactions went from 10,447 to 11,760. Query is `sql/03_funnel_summary.sql`, and it keeps both versions side by side so I can compare them.
+
+## Step 7: Retention by First-Day Behavior
+
+The retention curves in `sql/04_cohort_retention.sql` only grouped by cohort week, so there was no way to see if some visitors retain better than others. I added a segment based on what a visitor did on their first active day: carted if they added something to cart (or bought) that day, viewed_only if they just looked around.
+
+Carted visitors retain noticeably better. At week 1, 7.8% of carted visitors are still active compared to 3.1% of viewed_only visitors, and that gap holds up through week 8 (0.98% vs 0.62%). I also added a check so a cohort only shows up at a given week if enough time has actually passed to observe it, which matters more as new cohorts keep getting added toward the end of the data.
+
 ## Recommendation
 
 The gap is real and it is huge, but it does not mean the second visit is what causes the sale. People who come back are already more interested in buying than people who bounced once and never returned, so the group is self selected and the causation could easily run the other way. What I would actually take from this is that a return visit is a strong signal of intent, and I would trust it as a signal way before I would trust it as a lever.
@@ -59,4 +71,5 @@ The gap is real and it is huge, but it does not mean the second visit is what ca
 - `sql/03_funnel_summary.sql`
 - `sql/04_cohort_retention.sql`
 - `sql/05_windowed_segmentation.sql`
+- `sql/06_segment_counts_windowed.sql`
 - `notebooks/01_significance_test.ipynb`
